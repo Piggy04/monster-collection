@@ -68,8 +68,11 @@
     <ul id="monsterList" class="monster-list"></ul>
 
     <script>
-        const API_URL = 'http://localhost:5000';
+        const API_URL = 'https://monster-collection.onrender.com';
         let allMonsters = [];
+
+        fetch(`${API_URL}/monsters`)
+
 
         // Carica la lista delle Monster
         async function loadMonsters() {
