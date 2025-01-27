@@ -13,7 +13,13 @@ app.use(bodyParser.json());
 // Connetti MongoDB
 mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // Rimuovi useUnifiedTopology poiché non è più necessario
+})
+.then(() => {
+    console.log("Connesso a MongoDB Atlas con successo!");
+})
+.catch((error) => {
+    console.error("Errore nella connessione a MongoDB Atlas", error);
 });
 
 // Schema MongoDB
