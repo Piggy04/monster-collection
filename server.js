@@ -19,6 +19,9 @@ mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?re
     console.error("Errore nella connessione a MongoDB Atlas", error);
 });
 
+const API_URL = 'https://monster-collection.onrender.com'; // Usa l'URL di Render
+
+
 // Schema MongoDB
 const monsterSchema = new mongoose.Schema({
     name: String,
