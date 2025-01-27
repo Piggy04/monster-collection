@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+app.use(cors({
+    origin: ['https://monster-collection.netlify.app', 'http://localhost:3000'], // Permetti più domini
+}));
 
 const app = express();
 
