@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Mia Collezione di Monster</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .category-buttons { margin-bottom: 20px; }
+        button { padding: 10px 15px; margin-right: 10px; cursor: pointer; }
+        .monster { margin: 10px; padding: 10px; border: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; cursor: move; }
+        .monster.owned { background-color: #d4edda; }
+        .monster-list { list-style: none; padding: 0; }
+        form { margin-bottom: 20px; }
+        input, select { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+</head>
+<body>
+    <h1>La Mia Collezione di Monster</h1>
+    <h2>Contatore Monster Possedute: <span id="monsterCount">0</span></h2>
+
+    <!-- Form per aggiungere una nuova Monster -->
+    <div>
+        <h3>Aggiungi una nuova Monster</h3>
+        <form id="addMonsterForm">
+            <input type="text" id="monsterName" placeholder="Nome Monster" required>
+            <select id="monsterCategory">
+                <option value="Classic">Classic</option>
+                <option value="Ultra">Ultra</option>
+                <option value="Rehab">Rehab</option>
+                <option value="Nitro">Nitro</option>
+                <option value="Java">Java</option>
+                <option value="Super Fuel">Super Fuel</option>
+                <option value="Reserve">Reserve</option>
+                <option value="Dragon Tea">Dragon Tea</option>
+                <option value="Punch">Punch</option>
+                <option value="Juiced">Juiced</option>
+                <option value="Dedicate">Dedicate</option>
+            </select>
+            <button type="submit">Aggiungi</button>
+        </form>
+    </div>
+
+    <!-- Pulsanti per le Categorie -->
+    <div class="category-buttons">
+        <button onclick="filterByCategory('all')">Tutte</button>
+        <button onclick="filterByCategory('Classic')">Classic</button>
+        <button onclick="filterByCategory('Ultra')">Ultra</button>
+        <button onclick="filterByCategory('Rehab')">Rehab</button>
+        <button onclick="filterByCategory('Nitro')">Nitro</button>
+        <button onclick="filterByCategory('Java')">Java</button>
+        <button onclick="filterByCategory('Super Fuel')">Super Fuel</button>
+        <button onclick="filterByCategory('Reserve')">Reserve</button>
+        <button onclick="filterByCategory('Dragon Tea')">Dragon Tea</button>
+        <button onclick="filterByCategory('Punch')">Punch</button>
+        <button onclick="filterByCategory('Juiced')">Juiced</button>
+        <button onclick="filterByCategory('Dedicate')">Dedicate</button>
+    </div>
+
+    <!-- Pulsante per confermare l'ordine -->
+<div>
+    <button id="confirmOrderButton">Conferma Ordine</button>
+</div>
+
+
+    <!-- Lista delle Monster -->
+    <ul id="monsterList" class="monster-list"></ul>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        let allMonsters = [];
+
+        // Carica la lista delle Monster
+        async function loadMonsters() {
+            const response = await fetch(`${API_URL}/monsters`);
+            allMonsters = await response.json();
+            renderMonsters(allMonsters, 'all');
+        }
+
+        // Filtra e mostra le Monster in base alla categoria
+        function filterByCategory(category) {
+            const filteredMonsters = category === 'all'
+                ? allMonsters
+                : allMonsters.filter(monster => monster.category === category);
+            renderMonsters(filteredMonsters, category);
+        }
+
+        // Renderizza la lista delle Monster
+        function renderMonsters(monsters, category) {
+            const monsterList = document.getElementById('monsterList');
+            monsterList.innerHTML = '';
+
+            let ownedCount = 0;
+
+            monsters.forEach((monster) => {
+                const monsterItem = document.createElement('li');
+                monsterItem.classList.add('monster');
+                if (monster.owned) {
+                    monsterItem.classList.add('owned');
+                    ownedCount++;
+                }
+
+                monsterItem.innerHTML = `
+                    <span><strong>${monster.name}</strong> - ${monster.category}</span>
+                    <button onclick="toggleOwned('${monster._id}', ${!monster.owned})">
+                        ${monster.owned ? 'Rimuovi' : 'Aggiungi'} dalla Collezione
+                    </button>
+                `;
+                monsterItem.setAttribute('data-id', monster._id);
+
+                monsterList.appendChild(monsterItem);
+            });
+
+            document.getElementById('monsterCount').innerText = ownedCount;
+
+            // Abilita il drag-and-drop con Sortable.js
+            new Sortable(monsterList, {
+                animation: 150,
+                onEnd: (evt) => {
+                    // Raccogliamo il nuovo ordine degli ID
+                    const newOrder = [];
+                    const items = monsterList.children;
+                    for (let i = 0; i < items.length; i++) {
+                        newOrder.push(items[i].getAttribute('data-id'));
+                    }
+
+                    // Inviamo il nuovo ordine al backend
+                    updateMonsterOrder(newOrder);
+                }
+            });
+        }
+
+        // Aggiorna lo stato "owned" di una Monster
+        async function toggleOwned(id, owned) {
+            await fetch(`${API_URL}/update-monster/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ owned }),
+            });
+            loadMonsters();
+        }
+
+        // Aggiorna l'ordine delle monster nel backend
+        async function updateMonsterOrder(newOrder) {
+            try {
+                const response = await fetch(`${API_URL}/update-order`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newOrder }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    console.log(result.message);
+                } else {
+                    alert('Errore nell\'aggiornamento dell\'ordine');
+                }
+            } catch (error) {
+                console.error('Errore nel salvataggio dell\'ordine', error);
+            }
+        }
+
+        // Aggiungi una nuova Monster
+        document.getElementById('addMonsterForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const name = document.getElementById('monsterName').value;
+            const category = document.getElementById('monsterCategory').value;
+
+            const newMonster = { name, category };
+
+            const response = await fetch(`${API_URL}/add-monster`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newMonster),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                loadMonsters();
+            } else {
+                alert('Errore durante l\'aggiunta della Monster.');
+            }
+
+            document.getElementById('addMonsterForm').reset();
+        });
+
+        loadMonsters();
+    </script>
+</body>
+</html>
