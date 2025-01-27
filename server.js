@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const PORT = 5000;
 
 // Middleware
 app.use(cors());
@@ -12,37 +11,20 @@ app.use(bodyParser.json());
 
 // Connetti MongoDB
 mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-.then(() => {
-    console.log("Connesso a MongoDB Atlas con successo!");
-})
-.catch((error) => {
-    console.error("Errore nella connessione a MongoDB Atlas", error);
-});
-
-const API_URL = 'https://monster-collection.onrender.com'; // Usa l'URL di Render
-
-const path = require('path');
-
-const cors = require('cors');
-app.use(cors({ origin: 'https://monster-collection.netlify.app' }));  // Specifica il dominio di Netlify
-
-
-app.use(express.static(path.join(__dirname, 'public'))); // Servi file statici dalla cartella "public"
-
-
-// Route di default
-app.get('/', (req, res) => {
-    res.send('La tua applicazione di Monster è in esecuzione!');
-});
-
+    .then(() => {
+        console.log("Connesso a MongoDB Atlas con successo!");
+    })
+    .catch((error) => {
+        console.error("Errore nella connessione a MongoDB Atlas", error);
+    });
 
 // Schema MongoDB
 const monsterSchema = new mongoose.Schema({
     name: String,
-    category: { 
-        type: String, 
-        enum: ['Classic', 'Ultra', 'Rehab', 'Nitro', 'Java', 'Super Fuel', 'Reserve', 'Dragon Tea', 'Punch', 'Juiced', 'Dedicate'] 
-    },  // Aggiungi tutte le categorie qui
+    category: {
+        type: String,
+        enum: ['Classic', 'Ultra', 'Rehab', 'Nitro', 'Java', 'Super Fuel', 'Reserve', 'Dragon Tea', 'Punch', 'Juiced', 'Dedicate']
+    },
     owned: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
 });
@@ -52,7 +34,7 @@ const Monster = mongoose.model('Monster', monsterSchema);
 // Ottieni tutte le Monster, ordinate per "order"
 app.get('/monsters', async (req, res) => {
     try {
-        const monsters = await Monster.find().sort('order'); // Ordina per "order"
+        const monsters = await Monster.find().sort('order');
         res.json(monsters);
     } catch (error) {
         console.error('Errore nel recupero delle monster:', error);
@@ -76,10 +58,9 @@ app.put('/update-monster/:id', async (req, res) => {
 
 // Aggiorna l'ordine delle Monster
 app.put('/update-order', async (req, res) => {
-    const { newOrder } = req.body; // Lista con gli ID in ordine
+    const { newOrder } = req.body;
 
     try {
-        // Aggiorna ogni monster con il nuovo ordine
         for (let i = 0; i < newOrder.length; i++) {
             const monsterId = newOrder[i];
             await Monster.findByIdAndUpdate(monsterId, { order: i });
@@ -97,11 +78,10 @@ app.post('/add-monster', async (req, res) => {
     try {
         const { name, category, owned } = req.body;
 
-        // Crea una nuova Monster nel database
         const newMonster = new Monster({
             name,
             category,
-            owned: owned || false, // Di default non è posseduta
+            owned: owned || false,
         });
 
         await newMonster.save();
@@ -112,7 +92,5 @@ app.post('/add-monster', async (req, res) => {
     }
 });
 
-// Avvia il server
-app.listen(PORT, () => {
-    console.log(`Server avviato su https://monster-collection.onrender.com`);
-});
+// Esporta l'app per Vercel
+module.exports = app;
