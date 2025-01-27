@@ -11,10 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connetti MongoDB
-mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-    useNewUrlParser: true,
-    // Rimuovi useUnifiedTopology poiché non è più necessario
-})
+mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 .then(() => {
     console.log("Connesso a MongoDB Atlas con successo!");
 })
