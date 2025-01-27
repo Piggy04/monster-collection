@@ -100,5 +100,5 @@ app.post('/add-monster', async (req, res) => {
 
 // Avvia il server
 app.listen(PORT, () => {
-    console.log(`Server avviato su http://localhost:${PORT}`);
+    console.log(`Server avviato su https://monster-collection.onrender.com`);
 });
