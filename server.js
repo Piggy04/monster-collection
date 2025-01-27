@@ -21,6 +21,20 @@ mongoose.connect('mongodb+srv://piggy:monster1441@cluster0.cf9e2.mongodb.net/?re
 
 const API_URL = 'https://monster-collection.onrender.com'; // Usa l'URL di Render
 
+const path = require('path');
+
+const cors = require('cors');
+app.use(cors());
+
+
+app.use(express.static(path.join(__dirname, 'public'))); // Servi file statici dalla cartella "public"
+
+
+// Route di default
+app.get('/', (req, res) => {
+    res.send('La tua applicazione di Monster è in esecuzione!');
+});
+
 
 // Schema MongoDB
 const monsterSchema = new mongoose.Schema({
