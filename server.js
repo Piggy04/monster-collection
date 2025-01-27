@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connetti MongoDB
-mongoose.connect('mongodb://localhost:27017/monsterDB', {
+mongoose.connect('mongodb+srv://piggy:<db_password>@cluster0.cf9e2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
