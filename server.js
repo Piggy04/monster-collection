@@ -96,5 +96,25 @@ app.post('/add-monster', async (req, res) => {
     }
 });
 
+// Rimuovi una Monster
+app.delete('/delete-monster/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Trova e rimuovi la monster tramite ID
+        const deletedMonster = await Monster.findByIdAndDelete(id);
+        
+        if (!deletedMonster) {
+            return res.status(404).json({ message: 'Monster non trovata!' });
+        }
+
+        res.json({ message: 'Monster eliminata con successo!' });
+    } catch (error) {
+        console.error('Errore durante la cancellazione della Monster:', error);
+        res.status(500).json({ message: 'Errore durante la cancellazione della Monster.' });
+    }
+});
+
+
 // Esporta l'app per Vercel
 module.exports = app;
