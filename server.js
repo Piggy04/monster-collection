@@ -23,9 +23,6 @@ const API_URL = 'https://monster-collection.onrender.com'; // Usa l'URL di Rende
 
 const path = require('path');
 
-const cors = require('cors');
-app.use(cors());
-
 
 app.use(express.static(path.join(__dirname, 'public'))); // Servi file statici dalla cartella "public"
 
